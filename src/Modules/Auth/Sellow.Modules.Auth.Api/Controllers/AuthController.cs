@@ -38,6 +38,7 @@ internal sealed class AuthController : ControllerBase
     /// <response code="409">User with given credentials already exists.</response>
     /// <response code="500">Internal server error.</response>
     [HttpPost("users")]
+    [ProducesResponseType(201)]
     public async Task<IResult> CreateUser([FromBody] CreateUser command, CancellationToken cancellationToken)
     {
         var userId = await _mediator.Send(command, cancellationToken);
