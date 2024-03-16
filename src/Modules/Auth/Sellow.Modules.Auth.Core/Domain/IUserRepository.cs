@@ -4,4 +4,5 @@ internal interface IUserRepository
 {
     Task<bool> IsUserUnique(User user, CancellationToken cancellationToken);
     Task Add(User user, CancellationToken cancellationToken);
+    Task Delete(User user, CancellationToken cancellationToken);
 }
