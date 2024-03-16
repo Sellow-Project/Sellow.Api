@@ -1,6 +1,8 @@
+using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using Sellow.Modules.Auth.Contracts.IntegrationEvents;
 using Sellow.Modules.Auth.Core.Auth;
 using Sellow.Modules.Auth.Core.DAL.Repositories;
 using Sellow.Modules.Auth.Core.Features;
@@ -43,11 +45,23 @@ public sealed class CreateUserTests : IDisposable
         Assert.Equal(1, _testDatabase.Context.Users.Count());
     }
 
+    [Fact]
+    internal async Task should_publish_an_event_when_user_was_successfully_created()
+    {
+        await _testDatabase.Init();
+        var command = new CreateUser("jan2@kowalski.pl", "jan2kowalski", "qwe123qwe!!");
+
+        await Act(command);
+
+        await _mediatorMock.Received(1).Publish(Arg.Any<UserCreated>());
+    }
+
     #region Arrange
 
     private readonly TestDatabase _testDatabase;
     private readonly CreateUserHandler _handler;
     private readonly IAuthService _authServiceMock = Substitute.For<IAuthService>();
+    private readonly IMediator _mediatorMock = Substitute.For<IMediator>();
 
     public CreateUserTests()
     {
@@ -55,7 +69,8 @@ public sealed class CreateUserTests : IDisposable
         _handler = new CreateUserHandler(
             Substitute.For<ILogger<CreateUserHandler>>(),
             new UserRepository(_testDatabase.Context),
-            _authServiceMock
+            _authServiceMock,
+            _mediatorMock
         );
     }
 
