@@ -2,6 +2,7 @@ using System.Net;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Sellow.Modules.Auth.Contracts.IntegrationEvents;
 using Sellow.Modules.Auth.Core.Auth;
 using Sellow.Modules.Auth.Core.Domain;
 using Sellow.Shared.Abstractions.Exceptions;
@@ -34,13 +35,15 @@ internal sealed class CreateUserHandler : IRequestHandler<CreateUser, Guid>
     private readonly ILogger<CreateUserHandler> _logger;
     private readonly IUserRepository _userRepository;
     private readonly IAuthService _authService;
+    private readonly IMediator _mediator;
 
     public CreateUserHandler(ILogger<CreateUserHandler> logger, IUserRepository userRepository,
-        IAuthService authService)
+        IAuthService authService, IMediator mediator)
     {
         _logger = logger;
         _userRepository = userRepository;
         _authService = authService;
+        _mediator = mediator;
     }
 
     public async Task<Guid> Handle(CreateUser request, CancellationToken cancellationToken)
@@ -58,6 +61,9 @@ internal sealed class CreateUserHandler : IRequestHandler<CreateUser, Guid>
         _logger.LogInformation("User '{@User}' was saved to the database", user);
 
         await CreateUserInExternalAuthSystem(request, user, cancellationToken);
+
+        var createdUser = new UserCreated(user.Id, user.Email, user.Username);
+        await _mediator.Publish(createdUser, cancellationToken);
 
         return user.Id;
     }

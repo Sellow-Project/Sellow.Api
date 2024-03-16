@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Shared\Sellow.Shared.Infrastructure\Sellow.Shared.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Sellow.Modules.Auth.Contracts\Sellow.Modules.Auth.Contracts.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
