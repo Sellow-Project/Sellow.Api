@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Sellow.Modules.Auth.Core.Auth;
 using Sellow.Modules.Auth.Core.DAL;
 
 namespace Sellow.Modules.Auth.Core;
@@ -14,8 +15,9 @@ internal static class Extensions
             .AddDatabase()
             .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), includeInternalTypes: true)
-            .AddFluentValidationAutoValidation(options => options.DisableDataAnnotationsValidation = true);
+            .AddFluentValidationAutoValidation(options => options.DisableDataAnnotationsValidation = true)
+            .AddAuth();
 
     public static IApplicationBuilder UseCore(this IApplicationBuilder app)
-        => app;
+        => app.UseAuth();
 }
